@@ -27,6 +27,10 @@ const LiveStream = () => {
     client.setup().then(() => {
         console.log('Webcaster.setup done');
     }).catch(() => console.log('Webcaster.setup error!'));
+    // client.setMuted({
+    //   audio: true,
+    //   video: false
+    // });
   }, []);
 
   useEffect(() => {
@@ -55,7 +59,6 @@ const LiveStream = () => {
     //   video: true,
     //   audio: true
     // });
-    
 
     try {
       const res = await fetch(API_NanoStream_Cloud.CREATE_STREAM, {
@@ -79,8 +82,6 @@ const LiveStream = () => {
       console.log('Init Livestream Error: ', error);
     }
   }
-  console.log('streamName: ', streamName);
-  console.log('idstream: ', streamid);
 
   async function startLiveStream() {
     try {
@@ -96,7 +97,6 @@ const LiveStream = () => {
     
       if(res.ok){
         const data = await res.text();
-        console.log('start stream: ', data);
     
         await peerConnection.setRemoteDescription(new RTCSessionDescription({
           type: 'answer',
@@ -141,7 +141,7 @@ const LiveStream = () => {
     initLivestream();
   }
 
-  //Chưa thực sự hoạt động
+  // Bật/tắt camera/mic
   const toggleCamera = (isCamera) => {
     console.log('is cam: ', isCamera)
     if(isCamera===true){
@@ -156,17 +156,17 @@ const LiveStream = () => {
       } else console.log('no stream: ', stream)
     }
 
-    // if(isCamera===false){
-    //   if (stream) {
-    //     const audioTracks = stream.getAudioTracks();
-    //     console.log('auiotracks: ', audioTracks)
-    //     audioTracks.forEach(track => {
-    //       track.stop()
-    //     });
+    if(isCamera===false){
+      if (stream) {
+        const audioTracks = stream.getAudioTracks();
+        console.log('auiotracks: ', audioTracks)
+        audioTracks.forEach(track => {
+          track.enabled = !track.enabled;
+        });
         
-    //     setIsMicOn(mic => mic===true? false: true);
-    //   } else console.log('no stream: ', stream)
-    // }
+        setIsMicOn(mic => mic===true? false: true);
+      } else console.log('no stream: ', stream)
+    }
   };
 
   async function stopLivestream(idstream) {
@@ -181,7 +181,11 @@ const LiveStream = () => {
         }
       })
       
-      if(res.ok) return alert('Đã dừng livestream!');
+      if(res.ok) {
+        setStreamName('');
+        setStreamid('');
+        return alert('Đã dừng livestream!');
+      }
       return alert('Lỗi trong quá trình dừng livestream!');
     } catch (error) {
       console.log('Stop Livestream Error: ', error);
@@ -198,8 +202,8 @@ const LiveStream = () => {
     <button onClick={handleClickInitStream}>Khởi tạo livestream</button>
     <button onClick={handleClickBtn}>Bắt đầu livestream</button>
     <button onClick={() => stopLivestream()}>Dừng livestream</button>
-    <button onClick={() => toggleCamera(false)}>Tắt/Bật Mic</button>
-    <button onClick={() => toggleCamera(true)}>Tắt/Bật Camera</button> <br /> <br />
+    <button onClick={() => toggleCamera(false)}>{isMicOn? 'Tắt': 'Bật'} Mic</button>
+    <button onClick={() => toggleCamera(true)}>{isCamereOn? 'Tắt': 'Bật'} Camera</button> <br /> <br />
     {/* <iframe src={`https://demo.nanocosmos.de/nanoplayer/embed/1.3.3/nanoplayer.html?entry.rtmp.streamname=${streamName}`} autoPlay muted />; */}
     </>
   )

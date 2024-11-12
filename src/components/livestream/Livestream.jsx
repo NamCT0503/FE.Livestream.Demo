@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import NanostreamClound, { API_NanoStream_Cloud } from "../../env.dev";
+import NanostreamClound, { API_NanoStream_Cloud, API_ServerLiveStream, BASE_API_URL } from "../../env.dev";
 import LivestreamConfig from '../../nano.stream/webcaster.config';
+import { sendReq } from '../../auth/Login';
 
 const LiveStream = () => {
   let client;
@@ -101,7 +102,16 @@ const LiveStream = () => {
           type: 'answer',
           sdp: data
         }));
-        return alert('Livestream đã bắt đầu!');
+
+        const url_saveStreamkey = `${BASE_API_URL}${API_ServerLiveStream.CREATE_STREAM}`;
+        const saveStreamKey = await sendReq(url_saveStreamkey, {
+          method: 'POST',
+          body: JSON.stringify({
+            stream_url: `${API_NanoStream_Cloud.TYPE_STREAMNAME}${streamName}`,
+            title: 'Wellcome to my stream'
+          })
+        })
+        if(saveStreamKey.ok) return alert('Livestream đã bắt đầu!');
       }
       return alert('Lỗi trong quá trình bắt đầu livestream! Thử lại sau!');
     } catch (error) {
@@ -180,8 +190,9 @@ const LiveStream = () => {
 
   return(
     <>
+    <h1>Phát livestream</h1>
     {/* <iframe src='https://demo.nanocosmos.de/nanoplayer/embed/1.3.3/nanoplayer.html?group.id=452d1ddc-4d4b-41ea-bd72-cf4eed6801d1' autoPlay muted />; */}
-    <video ref={videoRef} autoPlay playsInline />
+    <video ref={videoRef} width={1200} height={500} autoPlay playsInline />
     {/* https://demo.nanocosmos.de/nanoplayer/embed/1.3.3/nanoplayer.html?entry.rtmp.streamname=DSW0M-ujmKj */}
 
     <button onClick={handleClickInitStream}>Khởi tạo livestream</button>
@@ -189,7 +200,7 @@ const LiveStream = () => {
     <button onClick={() => stopLivestream()}>Dừng livestream</button>
     <button onClick={() => toggleCamera(false)}>Tắt/Bật Mic</button>
     <button onClick={() => toggleCamera(true)}>Tắt/Bật Camera</button> <br /> <br />
-    <iframe src={`https://demo.nanocosmos.de/nanoplayer/embed/1.3.3/nanoplayer.html?entry.rtmp.streamname=${streamName}`} autoPlay muted />;
+    {/* <iframe src={`https://demo.nanocosmos.de/nanoplayer/embed/1.3.3/nanoplayer.html?entry.rtmp.streamname=${streamName}`} autoPlay muted />; */}
     </>
   )
 }

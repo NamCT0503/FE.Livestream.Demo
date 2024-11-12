@@ -2,6 +2,9 @@ import { useState } from 'react'
 import './App.css'
 import NanostreamClound from './env.dev'
 import LiveStream from './components/livestream/Livestream';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Login from './auth/Login';
+import ViewerComponent from './viewer/Viewer';
 // import Livestream from './nano.stream/webcaster.config'
 
 function App() {
@@ -9,20 +12,20 @@ function App() {
   const stream_token = NanostreamClound.BintuToken;
 
   return (
-    <>
-      <div className="App">
-        <h1>Livestream Video</h1>
-        <LiveStream streamId={streamid} streamToken={stream_token} />
-      </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Login></Login>}></Route>
+        <Route path='/creator' element={<LiveStream></LiveStream>}></Route>
+        <Route path='/viewer' element={<ViewerComponent></ViewerComponent>}></Route>
+      </Routes>
+    </BrowserRouter>
 
-      {/* <iframe 
-        frameborder="0" 
-        allowfullscreen 
-        width="1280" 
-        height="720" 
-        src="https://demo.nanocosmos.de/nanoplayer/embed/1.3.3/nanoplayer.html?group.id=452d1ddc-4d4b-41ea-bd72-cf4eed6801d1&options.adaption.rule=deviationOfMean2&startIndex=0&playback.latencyControlMode=balancedadaptive">
-      </iframe> */}
-    </>
+    // <>
+    //   <div className="App">
+    //     <h1>Livestream Video</h1>
+    //     <LiveStream />
+    //   </div>
+    // </>
   )
 }
 
